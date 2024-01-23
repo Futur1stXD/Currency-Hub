@@ -15,7 +15,7 @@ struct ExchangerJSON: Identifiable, Decodable {
     let mainaddress: String
     let address: String
     let phones: [String]
-    let actualTime: Date
+    let actualTime: TimeInterval
     
     let lat: Double
     let lng: Double
@@ -23,7 +23,7 @@ struct ExchangerJSON: Identifiable, Decodable {
     let workmodes: Workmodes
     let data: [String: [Double]]
     
-    init(id: Int, name: String, city: String, mainaddress: String, address: String, phones: [String], actualTime: Date, lat: Double, lng: Double, workmodes: Workmodes, data: [String : [Double]]) {
+    init(id: Int, name: String, city: String, mainaddress: String, address: String, phones: [String], actualTime: TimeInterval, lat: Double, lng: Double, workmodes: Workmodes, data: [String : [Double]]) {
         self.id = id
         self.name = name
         self.city = city

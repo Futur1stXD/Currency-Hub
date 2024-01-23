@@ -12,6 +12,7 @@ import Combine
 @MainActor
 class ExchangerViewModel: ObservableObject {
     @Published var exchangers = [Exchanger]()
+    @Published var isUpdating: Bool = false
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -38,6 +39,39 @@ class ExchangerViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
+    func updateKursKz(id: String) async {
+        if isUpdating { return }
+        isUpdating = true
+        guard let url = URL(string: "https://kurs.kz/site/index?city=astana") else { return }
+        
+        URLSession.shared.dataTaskPublisher(for: url)
+            .map(\.data)
+            .map { data in
+                String(data: data, encoding: .utf8) ?? ""
+            }
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    print("Error: \(error)")
+                }
+            }, receiveValue: { [weak self] html in
+                guard let exchangers = self?.extractJSON(from: html) else { return }
+                if let exchanger = exchangers.first(where: { $0.id == id }) {
+                    if let index = self?.exchangers.firstIndex(where: { $0.id == id }) {
+                        DispatchQueue.main.async {
+                            self?.exchangers[index].currency = exchanger.currency
+                            self?.exchangers[index].actualTime = exchanger.actualTime
+                            self?.isUpdating = false
+                        }
+                    }
+                }
+            })
+            .store(in: &cancellables)
+    }
+    
     private func extractJSON(from html: String) -> [Exchanger] {
         do {
             let doc = try SwiftSoup.parse(html)
@@ -53,8 +87,10 @@ class ExchangerViewModel: ObservableObject {
                             let exchangers = try JSONDecoder().decode([ExchangerJSON].self, from: data)
                             var newArray = [Exchanger]()
                             for exchanger in exchangers {
+                                let timestamp: TimeInterval = exchanger.actualTime
+                                let date = Date(timeIntervalSince1970: timestamp)
                                 let arrCurrencies = convertToCurrencies(exchanger.data)
-                                let newExchanger = Exchanger(id: String(exchanger.id), title: exchanger.name, city: exchanger.city, mainAddress: exchanger.mainaddress, address: exchanger.address, phones: exchanger.phones, actualTime: exchanger.actualTime, coordinates: Coordinates(lat: exchanger.lat, lng: exchanger.lng), currency: arrCurrencies, workModes: exchanger.workmodes, type: .EXCHANGER, source: .KURS)
+                                let newExchanger = Exchanger(id: String(exchanger.id), title: exchanger.name, city: exchanger.city, mainAddress: exchanger.mainaddress, address: exchanger.address, phones: exchanger.phones, actualTime: date, coordinates: Coordinates(lat: exchanger.lat, lng: exchanger.lng), currency: arrCurrencies, workModes: exchanger.workmodes, type: .EXCHANGER, source: .KURS)
                                 newArray.append(newExchanger)
                             }
                             if exchangers.count == newArray.count {

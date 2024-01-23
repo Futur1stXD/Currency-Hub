@@ -57,7 +57,7 @@ struct ExchangerList: View {
                 if exchangerViewModel.exchangers.count != 0 {
                     List {
                         ForEach(sortedList, id:\.id) { exchanger in
-                            ExchangerRow(title: exchanger.title, address: exchanger.mainAddress, lat: exchanger.coordinates.lat, lng: exchanger.coordinates.lng, isOpen: exchanger.workModes.closed)
+                            ExchangerRow(title: exchanger.title, address: exchanger.mainAddress, lat: exchanger.coordinates.lat, lng: exchanger.coordinates.lng, isOpen: exchanger.workModes.worknow)
                                 .onTapGesture {
                                     withAnimation {
                                         openSearchList = false
@@ -99,7 +99,7 @@ struct ExchangerList: View {
             HStack {
                 Text("💸")
                     .frame(width: 40, height: 40)
-                    .background(!isOpen ? .green : .red)
+                    .background(isOpen ? .green : .red)
                     .clipShape(.rect(cornerRadius: 10))
                 
                 VStack (alignment: .leading) {
@@ -113,8 +113,8 @@ struct ExchangerList: View {
                 Spacer()
                 
                 VStack(alignment: .trailing) {
-                    Text("открыт")
-                        .foregroundStyle(!isOpen ? .green : .red)
+                    Text(isOpen ? "открыт" : "закрыт")
+                        .foregroundStyle(isOpen ? .green : .red)
                         .font(.subheadline)
                     HStack {
                         Image(systemName: "figure.walk")

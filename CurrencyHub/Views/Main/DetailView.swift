@@ -8,12 +8,16 @@
 import SwiftUI
 
 struct DetailView: View {
+    @EnvironmentObject var locationViewModel: LocationViewModel
+    @EnvironmentObject var exchangerViewModel: ExchangerViewModel
     @Environment(\.dismiss) var dismiss
     
     @State private var selectedDetailType: DetailType = .CURRENCY
     
     @Binding var exchanger: Exchanger?
     @Binding var height: CGFloat
+    
+    @State private var openTime: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -27,8 +31,24 @@ struct DetailView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 5)
                 
-                if UIScreen.main.bounds.height < height {
-                    ScrollView {
+                if selectedDetailType == .CURRENCY {
+                    if UIScreen.main.bounds.height <= height {
+                        ScrollView {
+                            currencyTable()
+                                .background(
+                                    GeometryReader { geometry in
+                                        Color.clear
+                                            .onAppear {
+                                                height = geometry.size.height + 120
+                                            }
+                                            .onChange(of: exchanger?.id ?? "") {
+                                                height = geometry.size.height + 120
+                                            }
+                                    }
+                                )
+                            
+                        }
+                    } else {
                         currencyTable()
                             .background(
                                 GeometryReader { geometry in
@@ -43,15 +63,19 @@ struct DetailView: View {
                             )
                     }
                 } else {
-                    currencyTable()
+                    info()
                         .background(
                             GeometryReader { geometry in
                                 Color.clear
                                     .onAppear {
-                                        height = geometry.size.height + 120
+                                        withAnimation {
+                                            height = geometry.size.height + 120
+                                        }
                                     }
                                     .onChange(of: exchanger?.id ?? "") {
-                                        height = geometry.size.height + 120
+                                        withAnimation {
+                                            height = geometry.size.height + 120
+                                        }
                                     }
                             }
                         )
@@ -82,8 +106,13 @@ struct DetailView: View {
                     .font(.caption2)
                     .bold()
                 Spacer()
-                Text("Обновлено в \(minutesFromNow(to: exchanger?.actualTime ?? .now))")
-                    .font(.caption2)
+                VStack {
+                    Text("Обновлено \(calculateTimeDiff(from: exchanger?.actualTime ?? .now))")
+                        .font(.caption2)
+                    Text("\(formatDate(date: exchanger?.actualTime ?? .now))")
+                        .font(.system(size: 10))
+                        .foregroundStyle(.gray)
+                }
             }
             .padding(.horizontal)
             LazyVGrid(columns: [
@@ -116,15 +145,112 @@ struct DetailView: View {
             .background(.regularMaterial)
             .clipShape(.rect(cornerRadius: 20))
             .padding(.horizontal, 10)
-            Button(action: {}, label: {
+            Button(action: {
+                Task {
+                    await exchangerViewModel.updateKursKz(id: exchanger?.id ?? "")
+                }
+            }, label: {
                 Text("Обновить")
                     .padding(.all, 10)
                     .frame(width: 300)
                     .foregroundStyle(.white)
-                    .background(.blue)
+                    .background(exchangerViewModel.isUpdating ? .blue.opacity(0.5) : .blue)
                     .clipShape(.rect(cornerRadius: 15))
                     .padding(.vertical, 5)
+                    .overlay {
+                        ProgressView()
+                            .opacity(exchangerViewModel.isUpdating ? 1 : 0)
+                    }
             })
+        }
+    }
+    
+    @ViewBuilder
+    private func info() -> some View {
+        VStack {
+            VStack(alignment: .leading) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Адрес")
+                            .font(.system(size: 18))
+                            .bold()
+                        Text(exchanger?.mainAddress ?? "")
+                            .font(.system(size: 16))
+                            .lineLimit(20)
+                        
+                        Text(exchanger?.city ?? "")
+                            .font(.system(size: 16))
+                    }
+                    Spacer()
+                    Text("~\(locationViewModel.calculateDistance(latitude: exchanger?.coordinates.lat ?? 0, longitude: exchanger?.coordinates.lng ?? 0)) км")
+                }
+                if exchanger?.mainAddress ?? "" != exchanger?.address ?? "" {
+                    Divider()
+                    Text(exchanger?.address ?? "")
+                        .lineLimit(10)
+                        .foregroundStyle(.gray)
+                }
+            }
+            .padding(.all, 10)
+            .background(.gray.opacity(0.15))
+            .clipShape(.rect(cornerRadius: 15))
+            .padding(.horizontal)
+            
+            HStack {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Время работы")
+                        .font(.system(size: 18))
+                        .bold()
+                    Text("Пн: 08:00 - 20:00")
+                }
+                Spacer()
+                Image(systemName: "chevron.down")
+            }
+            .padding(.all, 10)
+            .background(.gray.opacity(0.15))
+            .clipShape(.rect(cornerRadius: 15))
+            .padding(.horizontal)
+            
+            VStack (alignment: .leading, spacing: 5) {
+                Text("Контакты")
+                    .font(.system(size: 18))
+                    .bold()
+                ForEach(exchanger?.phones ?? [], id:\.self) { phone in
+                    HStack {
+                        Text(phone)
+                        Spacer()
+                        Image(systemName: "phone")
+                            .font(.system(size: 16))
+                    }
+                    .font(.system(size: 16))
+                    .foregroundStyle(.blue)
+                    .onTapGesture {
+                        if let appUrl = URL(string: "tel://+\(phone.filter {$0.isNumber})") {
+                            UIApplication.shared.open(appUrl)
+                        }
+                    }
+                }
+            }
+            .padding(.all, 10)
+            .background(.gray.opacity(0.15))
+            .clipShape(.rect(cornerRadius: 15))
+            .padding(.horizontal)
+            
+            Button {
+                let url = "https://2gis.kz/\(locationViewModel.city ?? "")/geo/\(exchanger?.coordinates.lng ?? 0)%2C\(exchanger?.coordinates.lat ?? 0)"
+                guard let appUrl = URL(string: url) else { return }
+                if UIApplication.shared.canOpenURL(appUrl) {
+                    UIApplication.shared.open(appUrl, options: [:], completionHandler: nil)
+                }
+            } label: {
+                Text("Открыть в 2GIS")
+            }
+            .padding(.all, 10)
+            .frame(width: 300)
+            .foregroundStyle(.white)
+            .background(.blue)
+            .clipShape(.rect(cornerRadius: 15))
+            .padding(.vertical, 5)
         }
     }
     
@@ -136,23 +262,25 @@ struct DetailView: View {
         }
     }
     
-    func minutesFromNow(to date: Date) -> Int {
+    private func formatDate(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .medium
+        return formatter.string(from: date)
+    }
+    
+    func calculateTimeDiff(from date: Date) -> String {
         let now = Date()
         let calendar = Calendar.current
-
-        // Убедитесь, что оба времени в UTC
-        let utcCalendar = Calendar(identifier: .gregorian)
-        let nowUTC = utcCalendar.date(bySettingHour: calendar.component(.hour, from: now),
-                                      minute: calendar.component(.minute, from: now),
-                                      second: calendar.component(.second, from: now),
-                                      of: now)!
-        let dateUTC = utcCalendar.date(bySettingHour: calendar.component(.hour, from: date),
-                                       minute: calendar.component(.minute, from: date),
-                                       second: calendar.component(.second, from: date),
-                                       of: date)!
-
-        let components = calendar.dateComponents([.minute], from: dateUTC, to: nowUTC)
-        return components.minute ?? 0
+        let components = calendar.dateComponents([.hour, .minute], from: date, to: now)
+        
+        if let hours = components.hour, hours > 0 {
+            return "\(hours) час назад"
+        } else if let minutes = components.minute {
+            return "\(minutes) минут назад"
+        } else {
+            return "Только что"
+        }
     }
     
     private enum DetailType : CaseIterable {
@@ -171,4 +299,6 @@ struct DetailView: View {
 
 #Preview {
     DetailView(exchanger: .constant(Exchanger(id: "", title: "", city: "", mainAddress: "", address: "", phones: [], actualTime: .now, coordinates: Coordinates(lat: 0, lng: 0), currency: [], workModes: Workmodes(mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [], holyday: [], nonstop: false, closed: false, worknow: false), type: .EXCHANGER, source: .KURS)), height: .constant(0))
+        .environmentObject(LocationViewModel())
+        .environmentObject(ExchangerViewModel())
 }
