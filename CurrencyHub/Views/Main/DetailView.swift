@@ -77,6 +77,11 @@ struct DetailView: View {
                                             height = geometry.size.height + 120
                                         }
                                     }
+                                    .onChange(of: openTime) {
+                                        withAnimation {
+                                            height = geometry.size.height + 120
+                                        }
+                                    }
                             }
                         )
                 }
@@ -147,7 +152,7 @@ struct DetailView: View {
             .padding(.horizontal, 10)
             Button(action: {
                 Task {
-                    await exchangerViewModel.updateKursKz(id: exchanger?.id ?? "")
+                    await exchangerViewModel.updateKursKz(id: exchanger?.id ?? "", city: "astana")
                 }
             }, label: {
                 Text("Обновить")
@@ -196,20 +201,38 @@ struct DetailView: View {
             .clipShape(.rect(cornerRadius: 15))
             .padding(.horizontal)
             
-            HStack {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Время работы")
-                        .font(.system(size: 18))
-                        .bold()
-                    Text("Пн: 08:00 - 20:00")
+            if !openTime {
+                HStack {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Время работы")
+                            .font(.system(size: 18))
+                            .bold()
+                        Text(workingHoursForToday())
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
                 }
-                Spacer()
-                Image(systemName: "chevron.down")
+                .padding(.all, 10)
+                .background(.gray.opacity(0.15))
+                .clipShape(.rect(cornerRadius: 15))
+                .padding(.horizontal)
+                .transition(.move(edge: .leading))
+                .zIndex(1)
+                .onTapGesture {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        openTime.toggle()
+                    }
+                }
+            } else {
+                showWorkModes()
+                    .transition(.move(edge: .trailing))
+                    .zIndex(1)
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            openTime.toggle()
+                        }
+                    }
             }
-            .padding(.all, 10)
-            .background(.gray.opacity(0.15))
-            .clipShape(.rect(cornerRadius: 15))
-            .padding(.horizontal)
             
             VStack (alignment: .leading, spacing: 5) {
                 Text("Контакты")
@@ -275,11 +298,66 @@ struct DetailView: View {
         let components = calendar.dateComponents([.hour, .minute], from: date, to: now)
         
         if let hours = components.hour, hours > 0 {
-            return "\(hours) час назад"
+            if hours == 1 {
+                return "\(hours) час назад"
+            }
+            return "\(hours) часа назад"
         } else if let minutes = components.minute {
             return "\(minutes) минут назад"
         } else {
             return "Только что"
+        }
+    }
+    
+    @ViewBuilder
+    private func showWorkModes() -> some View {
+        VStack(alignment: .leading) {
+            HStack {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Время работы")
+                        .font(.system(size: 18))
+                        .bold()
+                    if let workMode = exchanger?.workModes {
+                        Text("Пн: \(workMode.mon.first ?? "") - \(workMode.mon[1])")
+                        Text("Вт: \(workMode.tue.first ?? "") - \(workMode.tue[1])")
+                        Text("Ср: \(workMode.wed.first ?? "") - \(workMode.wed[1])")
+                        Text("Чт: \(workMode.thu.first ?? "") - \(workMode.thu[1])")
+                        Text("Пт: \(workMode.fri.first ?? "") - \(workMode.fri[1])")
+                        Text("Сб: \(workMode.sat.first ?? "") - \(workMode.sat[1])")
+                        Text("Вс: \(workMode.sun.first ?? "") - \(workMode.sun[1])")
+                    }
+                }
+                Spacer()
+                Image(systemName: "chevron.down")
+            }
+        }
+        .padding(.all, 10)
+        .background(.gray.opacity(0.15))
+        .clipShape(.rect(cornerRadius: 15))
+        .padding(.horizontal)
+    }
+    
+    private func workingHoursForToday() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE"
+        let currentDayOfWeek = dateFormatter.string(from: Date()).lowercased()
+        switch currentDayOfWeek {
+        case "monday":
+            return "Пн: \(exchanger?.workModes.mon.first ?? "") - \(exchanger?.workModes.mon[1] ?? "")"
+        case "tuesday":
+            return "Вт: \(exchanger?.workModes.tue.first ?? "") - \(exchanger?.workModes.tue[1] ?? "")"
+        case "wednesday":
+            return "Ср: \(exchanger?.workModes.wed.first ?? "") - \(exchanger?.workModes.wed[1] ?? "")"
+        case "thursday":
+            return "Чт: \(exchanger?.workModes.thu.first ?? "") - \(exchanger?.workModes.thu[1] ?? "")"
+        case "friday":
+            return "Пт: \(exchanger?.workModes.fri.first ?? "") - \(exchanger?.workModes.fri[1] ?? "")"
+        case "saturday":
+            return "Сб: \(exchanger?.workModes.sat.first ?? "") - \(exchanger?.workModes.sat[1] ?? "")"
+        case "Sunday":
+            return "Вс: \(exchanger?.workModes.sun.first ?? "") - \(exchanger?.workModes.sun[1] ?? "")"
+        default:
+            return "Ошибка"
         }
     }
     

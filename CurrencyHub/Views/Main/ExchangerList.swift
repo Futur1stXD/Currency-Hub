@@ -33,27 +33,45 @@ struct ExchangerList: View {
     var body: some View {
         NavigationStack {
             VStack {
-                TextField("Поиск", text: $searchText)
-                    .padding(.leading, 30)
-                    .padding(.horizontal)
-                    .padding(.vertical, 10)
+                HStack {
+                    TextField("Поиск", text: $searchText)
+                        .padding(.leading, 30)
+                        .padding(.horizontal)
+                        .padding(.vertical, 10)
+                        .background(
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(.ultraThinMaterial)
+                                
+                                HStack {
+                                    Image(systemName: "magnifyingglass")
+                                        .foregroundColor(.secondary)
+                                        .padding(.leading, 10)
+                                    Spacer()
+                                }
+                            }
+                        )
+                        .padding(.leading, 10)
+                        .foregroundStyle(.primary)
+                        .cornerRadius(10)
+                        .shadow(radius: 2)
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "arrow.up.arrow.down.circle")
+                            .font(.system(size: 26))
+                    }
+                    .foregroundStyle(.blue)
+                    .padding(.all, 5)
                     .background(
                         ZStack {
                             RoundedRectangle(cornerRadius: 10, style: .continuous)
                                 .fill(.ultraThinMaterial)
-
-                            HStack {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundColor(.secondary)
-                                    .padding(.leading, 10)
-                                Spacer()
-                            }
                         }
                     )
-                    .padding(.horizontal)
-                    .foregroundStyle(.primary)
-                    .cornerRadius(10)
-                    .shadow(radius: 2)
+                    .shadow(radius: 1)
+                }
+                .padding(.horizontal, 10)
                 if exchangerViewModel.exchangers.count != 0 {
                     List {
                         ForEach(sortedList, id:\.id) { exchanger in
@@ -86,6 +104,7 @@ struct ExchangerList: View {
             }
         }
     }
+    
     private struct ExchangerRow: View {
         @EnvironmentObject var locationViewModel: LocationViewModel
         
@@ -126,6 +145,45 @@ struct ExchangerList: View {
                     }
                 }
             }
+        }
+    }
+    
+    private struct SortSettingsSheet: View {
+        @Binding var openSortSettings: Bool
+        
+        var body: some View {
+            List {
+                
+            }
+            .listStyle(.plain)
+        }
+    }
+    
+    private enum SortSettings: CaseIterable {
+        case CURRENCY(currency: Currencies)
+        case BUY, SELL, OPEN, CLOSE, ALL, LAST_UPDATE
+        
+        var title: String {
+            switch self {
+            case .CURRENCY:
+                return "Currency"
+            case .BUY:
+                return "Продажа"
+            case .SELL:
+                return "Покупка"
+            case .OPEN:
+                return "Открыто"
+            case .CLOSE:
+                return "Закрыто"
+            case .ALL:
+                return "Все"
+            case .LAST_UPDATE:
+                return "Последнее обновление"
+            }
+        }
+        
+        static var allCases: [SortSettings] {
+            return [.CURRENCY(currency: Currencies(title: "USD", buyPrice: 0, sellPrice: 0)), .BUY, .SELL, .OPEN, .CLOSE, .ALL, .LAST_UPDATE]
         }
     }
 }

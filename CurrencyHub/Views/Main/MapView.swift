@@ -19,6 +19,8 @@ struct MapView: View {
     @State private var selectedMapStyle: MapStyle = .standard
     
     @State private var openSearchList: Bool = false
+    @State private var openCityList: Bool = false
+    @State private var selectedCity: City = .ASTANA
     
     @State private var selectedExchangerId: String?
     @State private var selectedExchanger: Exchanger?
@@ -65,6 +67,9 @@ struct MapView: View {
                         self.showMapStyle.toggle()
                     }
                 }
+                MapButton(systemName: "mappin.and.ellipse.circle.fill") {
+                    openCityList.toggle()
+                }
                 Spacer()
                 MapButton(systemName: "plus.circle", action: zoomIn)
                 MapButton(systemName: "minus.circle", action: zoomOut)
@@ -96,6 +101,11 @@ struct MapView: View {
             MapStylePicker(selectedMapStyle: $selectedMapStyle)
                 .presentationDetents([.height(230)])
         })
+        .sheet(isPresented: $openCityList, content: {
+            CityList(cameraPosition: $cameraPosition, selectedCity: $selectedCity, openCityList: $openCityList)
+                .presentationDetents([.medium])
+                .presentationCornerRadius(20)
+        })
         .sheet(isPresented: $openSearchList, content: {
             ExchangerList(openSearchList: $openSearchList, selectedExchanger: $selectedExchangerId)
                 .presentationDetents([.height(300), .large])
@@ -108,14 +118,18 @@ struct MapView: View {
                 .presentationCornerRadius(20)
                 .presentationBackgroundInteraction(.enabled(upThrough: .height(heightDetailView > 700 ? 350 : heightDetailView)))
         })
-        .onAppear {
-            cameraPosition = .region(locationViewModel.region)
-            
+        .onChange(of: locationViewModel.city) {
+            if let cityString = locationViewModel.city {
+                selectedCity = City.allCases.first { $0.title == cityString } ?? City.ASTANA
+            }
             if exchangerViewModel.exchangers.count == 0 {
                 Task {
-                    await exchangerViewModel.fetchKursKz()
+                    await exchangerViewModel.fetchKursKz(city: locationViewModel.city?.lowercased() ?? "")
                 }
             }
+        }
+        .onAppear {
+            cameraPosition = .region(locationViewModel.region)
         }
     }
     
@@ -149,6 +163,157 @@ struct MapView: View {
                     .padding(10)
                     .background(Circle()
                         .fill(.blue))
+            }
+        }
+    }
+    
+    private enum City: CaseIterable {
+        case ALMATY, ASTANA, AKSU, AKTAU, AKTOBE, KASKELEN,
+        KOSTANAI, PAVLODAR, RIDDER, SEMEI, TALDYKORGAN, URALSK, SHYMKENT
+
+        var title: String {
+            switch self {
+            case .ALMATY:
+                return "Алматы"
+            case .ASTANA:
+                return "Астана"
+            case .AKSU:
+                return "Аксу"
+            case .AKTAU:
+                return "Актау"
+            case .AKTOBE:
+                return "Актобе"
+            case .KASKELEN:
+                return "Каскелен"
+            case .KOSTANAI:
+                return "Костанай"
+            case .PAVLODAR:
+                return "Павлодар"
+            case .RIDDER:
+                return "Риддер"
+            case .SEMEI:
+                return "Семей"
+            case .TALDYKORGAN:
+                return "Талдыкорган"
+            case .URALSK:
+                return "Уральск"
+            case .SHYMKENT:
+                return "Шымкент"
+            }
+        }
+        
+        var cityForFetch: String {
+            switch self {
+            case .ALMATY:
+                return "almaty"
+            case .ASTANA:
+                return "astana"
+            case .AKSU:
+                return "aksu (pavlodar region)"
+            case .AKTAU:
+                return "aktau"
+            case .AKTOBE:
+                return "aktobe"
+            case .KASKELEN:
+                return "kaskelen"
+            case .KOSTANAI:
+                return "kostanai"
+            case .PAVLODAR:
+                return "pavlodar"
+            case .RIDDER:
+                return "ridder"
+            case .SEMEI:
+                return "semei"
+            case .TALDYKORGAN:
+                return "taldykorgan"
+            case .URALSK:
+                return "uralsk"
+            case .SHYMKENT:
+                return "shymkent"
+            }
+        }
+        
+        var regionCoordinate: MKCoordinateRegion {
+            switch self {
+            case .ALMATY:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 43.24278, longitude: 76.894131), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .ASTANA:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 51.129546, longitude: 71.443115), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .AKSU:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 52.036244, longitude: 76.933104), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .AKTAU:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 43.635586, longitude: 51.168276), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .AKTOBE:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 50.300223, longitude: 57.154108), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .KASKELEN:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 43.19982, longitude: 76.621829), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .KOSTANAI:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 53.214642, longitude: 63.631868), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .PAVLODAR:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 52.285579, longitude: 76.941204), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .RIDDER:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 50.347213, longitude: 83.503283), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .SEMEI:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 50.405044, longitude: 80.24929), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .TALDYKORGAN:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 45.01363, longitude: 78.381314), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .URALSK:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 51.203959, longitude: 51.370515), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            case .SHYMKENT:
+                return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.315448, longitude: 69.587038), latitudinalMeters: 6000, longitudinalMeters: 6000)
+            }
+        }
+    }
+    
+    private struct CityList: View {
+        @EnvironmentObject var exchangerViewModel: ExchangerViewModel
+        @EnvironmentObject var locationViewModel: LocationViewModel
+        @Environment(\.dismiss) var dismiss
+        
+        @Binding var cameraPosition: MapCameraPosition
+        @Binding var selectedCity: City
+        @Binding var openCityList: Bool
+        
+        var body: some View {
+            NavigationStack {
+                
+                List(City.allCases, id:\.title) { city in
+                    HStack {
+                        Text(city.title)
+                        Spacer()
+                        Image(systemName: selectedCity == city ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(selectedCity == city ? .blue : .primary)
+                    }
+                    .onTapGesture {
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                selectedCity = city
+                                openCityList.toggle()
+                                cameraPosition = .region(selectedCity.regionCoordinate)
+                            }
+                            Task {
+                                await exchangerViewModel.fetchKursKz(city: selectedCity.cityForFetch)
+                            }
+                        }
+                    }
+                }
+                .listStyle(.plain)
+                .navigationTitle("Доступные города")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 12))
+                                .foregroundStyle(.gray)
+                                .padding(.all, 4)
+                                .background(.gray.opacity(0.3))
+                                .clipShape(.circle)
+                        }
+                    }
+                }
             }
         }
     }

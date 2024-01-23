@@ -46,7 +46,9 @@ extension LocationViewModel: CLLocationManagerDelegate {
             }
             if let placemarks = placemarks?.first {
                 if let cityName = placemarks.locality {
-                    self.city = cityName
+                    DispatchQueue.main.async {
+                        self.city = cityName
+                    }
                 }
             }
         }

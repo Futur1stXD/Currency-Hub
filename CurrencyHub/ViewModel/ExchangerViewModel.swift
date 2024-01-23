@@ -16,8 +16,8 @@ class ExchangerViewModel: ObservableObject {
     
     private var cancellables: Set<AnyCancellable> = []
     
-    func fetchKursKz() async {
-        guard let url = URL(string: "https://kurs.kz/site/index?city=astana") else { return }
+    func fetchKursKz(city: String) async {
+        guard let url = URL(string: "https://kurs.kz/site/index?city=\(city)") else { return }
         
         URLSession.shared.dataTaskPublisher(for: url)
             .map(\.data)
@@ -33,16 +33,16 @@ class ExchangerViewModel: ObservableObject {
                     print("Error: \(error)")
                 }
             }, receiveValue: { [weak self] html in
-                guard let exchangers = self?.extractJSON(from: html) else { return }
+                guard let exchangers = self?.extractJSON(from: html, city: city) else { return }
                 self?.exchangers = exchangers
             })
             .store(in: &cancellables)
     }
     
-    func updateKursKz(id: String) async {
+    func updateKursKz(id: String, city: String) async {
         if isUpdating { return }
         isUpdating = true
-        guard let url = URL(string: "https://kurs.kz/site/index?city=astana") else { return }
+        guard let url = URL(string: "https://kurs.kz/site/index?city=\(city)") else { return }
         
         URLSession.shared.dataTaskPublisher(for: url)
             .map(\.data)
@@ -58,7 +58,7 @@ class ExchangerViewModel: ObservableObject {
                     print("Error: \(error)")
                 }
             }, receiveValue: { [weak self] html in
-                guard let exchangers = self?.extractJSON(from: html) else { return }
+                guard let exchangers = self?.extractJSON(from: html, city: city) else { return }
                 if let exchanger = exchangers.first(where: { $0.id == id }) {
                     if let index = self?.exchangers.firstIndex(where: { $0.id == id }) {
                         DispatchQueue.main.async {
@@ -72,41 +72,51 @@ class ExchangerViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    private func extractJSON(from html: String) -> [Exchanger] {
+    private func extractJSON(from html: String, city: String) -> [Exchanger] {
         do {
             let doc = try SwiftSoup.parse(html)
-            if let scriptElement = try doc.select("script").first(where: { try $0.html().contains("var punkts =")}) {
+            let scriptElements = try doc.select("script").array()
+            
+            var jsonDataStrings: [String] = []
+
+            for scriptElement in scriptElements {
                 let scriptText = try scriptElement.html()
-                let pattern = "var punkts = (\\[\\{.*?\\}\\]);"
-                let regex = try NSRegularExpression(pattern: pattern, options: [])
-                if let match = regex.firstMatch(in: scriptText, options: [], range: NSRange(location: 0, length: scriptText.utf16.count)) {
-                    let range = Range(match.range(at: 1), in: scriptText)!
-                    let jsonString = String(scriptText[range])
-                    if let data = jsonString.data(using: .utf8) {
-                        do {
-                            let exchangers = try JSONDecoder().decode([ExchangerJSON].self, from: data)
-                            var newArray = [Exchanger]()
-                            for exchanger in exchangers {
-                                let timestamp: TimeInterval = exchanger.actualTime
-                                let date = Date(timeIntervalSince1970: timestamp)
-                                let arrCurrencies = convertToCurrencies(exchanger.data)
-                                let newExchanger = Exchanger(id: String(exchanger.id), title: exchanger.name, city: exchanger.city, mainAddress: exchanger.mainaddress, address: exchanger.address, phones: exchanger.phones, actualTime: date, coordinates: Coordinates(lat: exchanger.lat, lng: exchanger.lng), currency: arrCurrencies, workModes: exchanger.workmodes, type: .EXCHANGER, source: .KURS)
-                                newArray.append(newExchanger)
-                            }
-                            if exchangers.count == newArray.count {
-                                return newArray
-                            }
-                        } catch {
-                            print("Error decoding JSON: \(error)")
-                        }
+                let patterns = city == "almaty" ? ["var punktsFromInternet = (\\[\\{.*?\\}\\]);", "var punkts = (\\[\\{.*?\\}\\]);"] : ["var punkts = (\\[\\{.*?\\}\\]);"]
+                for pattern in patterns {
+                    let regex = try NSRegularExpression(pattern: pattern, options: [])
+                    if let match = regex.firstMatch(in: scriptText, options: [], range: NSRange(location: 0, length: scriptText.utf16.count)) {
+                        let range = Range(match.range(at: 1), in: scriptText)!
+                        jsonDataStrings.append(String(scriptText[range]))
                     }
                 }
             }
+            var allExchangers = [Exchanger]()
+            for jsonDataString in jsonDataStrings {
+                if let data = jsonDataString.data(using: .utf8) {
+                    do {
+                        let exchangers = try JSONDecoder().decode([ExchangerJSON].self, from: data)
+                        for exchanger in exchangers {
+                            let timestamp: TimeInterval = exchanger.actualTime
+                            let date = Date(timeIntervalSince1970: timestamp)
+                            let arrCurrencies = convertToCurrencies(exchanger.data)
+                            let newExchanger = Exchanger(id: String(exchanger.id), title: exchanger.name, city: exchanger.city, mainAddress: exchanger.mainaddress, address: exchanger.address, phones: exchanger.phones, actualTime: date, coordinates: Coordinates(lat: exchanger.lat, lng: exchanger.lng), currency: arrCurrencies, workModes: exchanger.workmodes, type: .EXCHANGER, source: .KURS)
+                            allExchangers.append(newExchanger)
+                        }
+                    } catch {
+                        print("Error decoding JSON: \(error)")
+                    }
+                }
+            }
+
+            return allExchangers
+
         } catch {
             print("Error extracting JSON: \(error)")
         }
         return []
     }
+
+    
     private func convertToCurrencies(_ dict: [String: [Double]]) -> [Currencies] {
         return dict.compactMap { key, values in
             guard values.count >= 2, values[0] != 0, values[1] != 0 else { return nil }

@@ -24,9 +24,9 @@ struct MapStylePicker: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 16))
+                        .font(.system(size: 12))
                         .foregroundStyle(.gray)
-                        .padding(.all, 5)
+                        .padding(.all, 4)
                         .background(.gray.opacity(0.3))
                         .clipShape(.circle)
                 }
