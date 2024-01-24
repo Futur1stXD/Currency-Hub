@@ -22,16 +22,67 @@ struct MapView: View {
     @State private var openCityList: Bool = false
     @State private var selectedCity: City = .ASTANA
     
+    @State private var searchText: String = ""
     @State private var selectedExchangerId: String?
     @State private var selectedExchanger: Exchanger?
     @State private var openDetailSheet: Bool = false
     @State private var heightDetailView: CGFloat = 0
     
+    @State private var openSortSettings: Bool = false
+    @State private var selectedSettings: SortSettings = .ALL
+    @State private var selectedCurrency: Currency = .USD
+    @State private var selectedBuyOrSell: SortSetBuyOrSell = .BUY
+    
+    var sortedList: [Exchanger] {
+        let filteredList = exchangerViewModel.exchangers.filter { exchanger in
+            return searchText.isEmpty || exchanger.title.localizedCaseInsensitiveContains(searchText)
+        }
+        
+        var filteredAndSorted: [Exchanger] = []
+        
+        switch selectedSettings {
+        case .ALL:
+            filteredAndSorted = filteredList.sorted { exchanger1, exchanger2 in
+                if let distance1 = Double(locationViewModel.calculateDistance(latitude: exchanger1.coordinates.lat, longitude: exchanger1.coordinates.lng)),
+                   let distance2 = Double(locationViewModel.calculateDistance(latitude: exchanger2.coordinates.lat, longitude: exchanger2.coordinates.lng)) {
+                    return distance1 < distance2
+                }
+                return false
+            }
+            
+        case .CURRENCY:
+            let filterByCurrency = filteredList.filter { exchanger in
+                exchanger.currency.contains { currency in
+                    currency.title == selectedCurrency.rawValue
+                }
+            }
+            filteredAndSorted = filterByCurrency.sorted { exchanger1, exchanger2 in
+                switch selectedBuyOrSell {
+                case .BUY:
+                    let buyPrice1 = exchanger1.currency.first { $0.title == selectedCurrency.rawValue }?.buyPrice ?? 0
+                    let buyPrice2 = exchanger2.currency.first { $0.title == selectedCurrency.rawValue }?.buyPrice ?? 0
+                    return buyPrice1 < buyPrice2
+                    
+                case .SELL:
+                    let sellPrice1 = exchanger1.currency.first { $0.title == selectedCurrency.rawValue }?.sellPrice ?? 0
+                    let sellPrice2 = exchanger2.currency.first { $0.title == selectedCurrency.rawValue }?.sellPrice ?? 0
+                    return sellPrice1 < sellPrice2
+                }
+            }
+            
+        case .LAST_UPDATE:
+            filteredAndSorted = filteredList.sorted { exchanger1, exchanger2 in
+                return exchanger1.actualTime > exchanger2.actualTime
+            }
+        }
+        return filteredAndSorted
+    }
+    
     var body: some View {
         ZStack {
             Map(position: $cameraPosition, selection: $selectedExchangerId) {
                 UserAnnotation()
-                ForEach(exchangerViewModel.exchangers, id: \.id) { exchanger in
+                ForEach(sortedList, id: \.id) { exchanger in
                     Marker(exchanger.title, systemImage: "storefront", coordinate: exchanger.coordinates.coordinates)
                         .annotationTitles(.automatic)
                         .annotationSubtitles(.automatic)
@@ -107,7 +158,7 @@ struct MapView: View {
                 .presentationCornerRadius(20)
         })
         .sheet(isPresented: $openSearchList, content: {
-            ExchangerList(openSearchList: $openSearchList, selectedExchanger: $selectedExchangerId)
+            ExchangerList(openSearchList: $openSearchList, selectedExchanger: $selectedExchangerId, searchText: $searchText, openSortSettings: $openSortSettings, selectedSettings: $selectedSettings, selectedCurrency: $selectedCurrency, selectedBuyOrSell: $selectedBuyOrSell, sortedList: .constant(sortedList))
                 .presentationDetents([.height(300), .large])
                 .presentationCornerRadius(20)
                 .presentationBackgroundInteraction(.enabled(upThrough: .height(300)))
@@ -169,8 +220,8 @@ struct MapView: View {
     
     private enum City: CaseIterable {
         case ALMATY, ASTANA, AKSU, AKTAU, AKTOBE, KASKELEN,
-        KOSTANAI, PAVLODAR, RIDDER, SEMEI, TALDYKORGAN, URALSK, SHYMKENT
-
+             KOSTANAI, PAVLODAR, RIDDER, SEMEI, TALDYKORGAN, URALSK, SHYMKENT
+        
         var title: String {
             switch self {
             case .ALMATY:
@@ -276,7 +327,6 @@ struct MapView: View {
         
         var body: some View {
             NavigationStack {
-                
                 List(City.allCases, id:\.title) { city in
                     HStack {
                         Text(city.title)
