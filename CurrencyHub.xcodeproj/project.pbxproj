@@ -57,12 +57,12 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		FA01CE1A2B621D0A009DC0A1 /* Localizable */ = {
+		FA01CE1A2B621D0A009DC0A1 /* Localization */ = {
 			isa = PBXGroup;
 			children = (
 				FA01CE1F2B621D6C009DC0A1 /* Localizable.strings */,
 			);
-			path = Localizable;
+			path = Localization;
 			sourceTree = "<group>";
 		};
 		FA342F352B5C111F00FFC70A = {
@@ -84,7 +84,7 @@
 		FA342F402B5C111F00FFC70A /* CurrencyHub */ = {
 			isa = PBXGroup;
 			children = (
-				FA01CE1A2B621D0A009DC0A1 /* Localizable */,
+				FA01CE1A2B621D0A009DC0A1 /* Localization */,
 				FA875A732B614F3100953F36 /* Helper */,
 				FA342F592B5C140600FFC70A /* ViewModel */,
 				FA342F582B5C13FC00FFC70A /* Model */,
