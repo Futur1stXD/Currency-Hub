@@ -1,0 +1,71 @@
+"about_of_application" = "About the app";
+
+"goal_of_application" = "The purpose of the application";
+"goal_of_application_description" = "This project was created for educational purposes.";
+
+"about_app_improvements" = "Further improvements";
+"about_app_improve_description" = "If the coverage is large, we plan to regularly update and expand its functionality, adding new regions and improving the quality of data exchangers.";
+
+"about_app_contacts" = "Contacts";
+"about_app_charity" = "To support the project";
+
+"about_app_sub" = "Subscribe";
+"about_app_sub_description" = "All funds received from subscriptions and support for the project will be used for its further development and improvement.";
+
+"main_map" = "Map";
+"main_sort_update" = "On updating the currency";
+"main_sort_currency" = "Currency";
+"main_sort_all" = "All exchangers";
+"main_sort" = "Sorting";
+"main_search" = "Search";
+"main_buy" = "Buy";
+"main_sell" = "Sell";
+"main_info" = "Info";
+
+"main_error" = "Error";
+"main_update" = "Update";
+
+"main_available_cities" = "Available cities";
+
+"main_open" = "open";
+"main_close" = "close";
+"main_data_tacked" = "The data is taken from";
+"main_updated" = "Updated";
+
+"city_astana" = "Astana";
+"city_almaty" = "Almaty";
+"city_aksu" = "Aksu";
+"city_aktau" = "Aktau";
+"city_aktobe" = "Aktobe";
+"city_kaskelen" = "Kaskelen";
+"city_kostanai" = "Kostanai";
+"city_pavlodar" = "Pavlodar";
+"city_ridder" = "Ridder";
+"city_semei" = "Semei";
+"city_taldykorgan" = "Taldykorgan";
+"city_uralsk" = "Uralsk";
+"city_shymkent" = "Shymkent";
+
+"main_info_address" = "Address";
+"main_info_working_hours" = "Working hours";
+"main_info_open_in" = "Open in";
+
+"main_hour_ago" = "hour ago";
+"main_hours_ago" = "hours ago";
+"main_minute_ago" = "minutes ago";
+"main_just_now" = "Just now";
+
+"monday" = "Mon";
+"tuesday" = "Tue";
+"wednesday" = "Wed";
+"thursday" = "Thu";
+"friday" = "Fri";
+"saturday" = "Sat";
+"sunday" = "Sun";
+
+"kilometers" = "km";
+
+"main_map_style_choose" = "Choosing a map style";
+"main_map_standard" = "Standard";
+"main_map_hybrid" = "Hybrid";
+

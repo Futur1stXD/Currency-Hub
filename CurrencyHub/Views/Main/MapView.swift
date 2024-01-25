@@ -61,7 +61,7 @@ struct MapView: View {
                 case .BUY:
                     let buyPrice1 = exchanger1.currency.first { $0.title == selectedCurrency.rawValue }?.buyPrice ?? 0
                     let buyPrice2 = exchanger2.currency.first { $0.title == selectedCurrency.rawValue }?.buyPrice ?? 0
-                    return buyPrice1 < buyPrice2
+                    return buyPrice1 > buyPrice2
                     
                 case .SELL:
                     let sellPrice1 = exchanger1.currency.first { $0.title == selectedCurrency.rawValue }?.sellPrice ?? 0
@@ -126,6 +126,12 @@ struct MapView: View {
                 MapButton(systemName: "minus.circle", action: zoomOut)
                 MapButton(systemName: "location.viewfinder") {
                     cameraPosition = .region(locationViewModel.region)
+                    
+                    if selectedCity.title != locationViewModel.city {
+                        Task {
+                            await exchangerViewModel.fetchKursKz(city: locationViewModel.city?.localizedLowercase ?? "")
+                        }
+                    }
                 }
                 Spacer()
             }
@@ -147,6 +153,32 @@ struct MapView: View {
             }
             .padding(.leading, 20)
             .padding(.bottom, 30)
+        }
+        .overlay(alignment: .center) {
+            if exchangerViewModel.error {
+                VStack (alignment: .center) {
+                    Text("\(NSLocalizedString("main_error", comment: "")) 🥲")
+                    Text("\(exchangerViewModel.errorMessage)")
+                    Button(action: {
+                        Task {
+                            await exchangerViewModel.fetchKursKz(city: locationViewModel.city?.lowercased() ?? "")
+                            exchangerViewModel.error.toggle()
+                        }
+                    }, label: {
+                        Text("main_update")
+                            .padding(.all, 10)
+                            .frame(width: 100)
+                            .foregroundStyle(.white)
+                            .background(.blue)
+                            .clipShape(.rect(cornerRadius: 15))
+                            .padding(.vertical, 5)
+                    })
+                }
+                .padding(.all, 20)
+                .background(.ultraThinMaterial)
+                .clipShape(.rect(cornerRadius: 15))
+                .padding(.horizontal, 20)
+            }
         }
         .sheet(isPresented: $showMapStyle, content: {
             MapStylePicker(selectedMapStyle: $selectedMapStyle)
@@ -225,31 +257,31 @@ struct MapView: View {
         var title: String {
             switch self {
             case .ALMATY:
-                return "Алматы"
+                return NSLocalizedString("city_almaty", comment: "")
             case .ASTANA:
-                return "Астана"
+                return NSLocalizedString("city_astana", comment: "")
             case .AKSU:
-                return "Аксу"
+                return NSLocalizedString("city_aksu", comment: "")
             case .AKTAU:
-                return "Актау"
+                return NSLocalizedString("city_aktau", comment: "")
             case .AKTOBE:
-                return "Актобе"
+                return NSLocalizedString("city_aktobe", comment: "")
             case .KASKELEN:
-                return "Каскелен"
+                return NSLocalizedString("city_kaskelen", comment: "")
             case .KOSTANAI:
-                return "Костанай"
+                return NSLocalizedString("city_kostanai", comment: "")
             case .PAVLODAR:
-                return "Павлодар"
+                return NSLocalizedString("city_pavlodar", comment: "")
             case .RIDDER:
-                return "Риддер"
+                return NSLocalizedString("city_ridder", comment: "")
             case .SEMEI:
-                return "Семей"
+                return NSLocalizedString("city_semei", comment: "")
             case .TALDYKORGAN:
-                return "Талдыкорган"
+                return NSLocalizedString("city_taldykorgan", comment: "")
             case .URALSK:
-                return "Уральск"
+                return NSLocalizedString("city_uralsk", comment: "")
             case .SHYMKENT:
-                return "Шымкент"
+                return NSLocalizedString("city_shymkent", comment: "")
             }
         }
         
@@ -348,7 +380,7 @@ struct MapView: View {
                     }
                 }
                 .listStyle(.plain)
-                .navigationTitle("Доступные города")
+                .navigationTitle("main_available_cities")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {

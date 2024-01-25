@@ -26,7 +26,7 @@ struct ExchangerList: View {
         NavigationStack {
             VStack {
                 HStack {
-                    TextField("Поиск", text: $searchText)
+                    TextField("main_search", text: $searchText)
                         .padding(.leading, 30)
                         .padding(.horizontal)
                         .padding(.vertical, 10)
@@ -128,14 +128,14 @@ struct ExchangerList: View {
                 Spacer()
                 
                 VStack(alignment: .trailing) {
-                    Text(isOpen ? "открыт" : "закрыт")
+                    Text(isOpen ? "main_open" : "main_close")
                         .foregroundStyle(isOpen ? .green : .red)
                         .font(.subheadline)
                     HStack {
                         Image(systemName: "figure.walk")
                             .foregroundStyle(.gray)
                             .font(.system(size: 14))
-                        Text("~\(locationViewModel.calculateDistance(latitude: lat, longitude: lng)) км")
+                        Text("~\(locationViewModel.calculateDistance(latitude: lat, longitude: lng)) \(NSLocalizedString("kilometers", comment: ""))")
                             .foregroundStyle(.gray)
                             .font(.footnote)
                     }
@@ -164,6 +164,9 @@ struct ExchangerList: View {
                         }
                         .onTapGesture {
                             selection = settings
+                            if selection != .CURRENCY && settings != .CURRENCY {
+                                isOpen.toggle()
+                            }
                         }
                         if selection == .CURRENCY && settings == .CURRENCY {
                             HStack {
@@ -183,6 +186,7 @@ struct ExchangerList: View {
                                     }
                                     .onTapGesture {
                                         selectedBuyOrSell = buyOrSell
+                                        isOpen.toggle()
                                     }
                                 }
                             }
@@ -190,7 +194,7 @@ struct ExchangerList: View {
                     }
                 }
                 .listStyle(.plain)
-                .navigationTitle("Сортировка")
+                .navigationTitle("main_sort")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {

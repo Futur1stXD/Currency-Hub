@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA01CE1D2B621D6C009DC0A1 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = FA01CE1F2B621D6C009DC0A1 /* Localizable.strings */; };
 		FA1E01CC2B5D13B600D6906A /* ExchangerList.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1E01CB2B5D13B600D6906A /* ExchangerList.swift */; };
 		FA342F422B5C111F00FFC70A /* CurrencyHubApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA342F412B5C111F00FFC70A /* CurrencyHubApp.swift */; };
 		FA342F442B5C111F00FFC70A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA342F432B5C111F00FFC70A /* ContentView.swift */; };
@@ -25,6 +26,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		FA01CE1E2B621D6C009DC0A1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		FA01CE202B621D97009DC0A1 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FA1E01CB2B5D13B600D6906A /* ExchangerList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangerList.swift; sourceTree = "<group>"; };
 		FA342F3E2B5C111F00FFC70A /* CurrencyHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CurrencyHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA342F412B5C111F00FFC70A /* CurrencyHubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyHubApp.swift; sourceTree = "<group>"; };
@@ -54,6 +57,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FA01CE1A2B621D0A009DC0A1 /* Localizable */ = {
+			isa = PBXGroup;
+			children = (
+				FA01CE1F2B621D6C009DC0A1 /* Localizable.strings */,
+			);
+			path = Localizable;
+			sourceTree = "<group>";
+		};
 		FA342F352B5C111F00FFC70A = {
 			isa = PBXGroup;
 			children = (
@@ -73,6 +84,7 @@
 		FA342F402B5C111F00FFC70A /* CurrencyHub */ = {
 			isa = PBXGroup;
 			children = (
+				FA01CE1A2B621D0A009DC0A1 /* Localizable */,
 				FA875A732B614F3100953F36 /* Helper */,
 				FA342F592B5C140600FFC70A /* ViewModel */,
 				FA342F582B5C13FC00FFC70A /* Model */,
@@ -208,6 +220,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = FA342F352B5C111F00FFC70A;
 			packageReferences = (
@@ -228,6 +241,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA342F492B5C112000FFC70A /* Preview Assets.xcassets in Resources */,
+				FA01CE1D2B621D6C009DC0A1 /* Localizable.strings in Resources */,
 				FA342F462B5C112000FFC70A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -256,12 +270,25 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXVariantGroup section */
+		FA01CE1F2B621D6C009DC0A1 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FA01CE1E2B621D6C009DC0A1 /* en */,
+				FA01CE202B621D97009DC0A1 /* ru */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		FA342F4A2B5C112000FFC70A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -325,6 +352,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

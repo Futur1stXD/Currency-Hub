@@ -107,12 +107,12 @@ struct DetailView: View {
     private func currencyTable() -> some View {
         VStack {
             HStack {
-                Text("Данные взяты с \(exchanger?.source.title ?? "")")
+                Text("\(NSLocalizedString("main_data_tacked", comment: "")) \(exchanger?.source.title ?? "")")
                     .font(.caption2)
                     .bold()
                 Spacer()
                 VStack {
-                    Text("Обновлено \(calculateTimeDiff(from: exchanger?.actualTime ?? .now))")
+                    Text("\(NSLocalizedString("main_updated", comment: "")) \(calculateTimeDiff(from: exchanger?.actualTime ?? .now))")
                         .font(.caption2)
                     Text("\(formatDate(date: exchanger?.actualTime ?? .now))")
                         .font(.system(size: 10))
@@ -125,13 +125,13 @@ struct DetailView: View {
                 GridItem(.flexible(minimum: 100)),
                 GridItem(.flexible(minimum: 100))
             ], alignment: .center, spacing: 10) {
-                Text("Валюта")
+                Text("main_sort_currency")
                     .font(.headline)
                     .fontWeight(.bold)
-                Text("Покупка")
+                Text("main_buy")
                     .font(.headline)
                     .fontWeight(.bold)
-                Text("Продажа")
+                Text("main_sell")
                     .font(.headline)
                     .fontWeight(.bold)
                 ForEach(exchanger?.currency ?? [], id:\.title) { currency in
@@ -150,23 +150,6 @@ struct DetailView: View {
             .background(.regularMaterial)
             .clipShape(.rect(cornerRadius: 20))
             .padding(.horizontal, 10)
-            Button(action: {
-                Task {
-                    await exchangerViewModel.updateKursKz(id: exchanger?.id ?? "", city: "astana")
-                }
-            }, label: {
-                Text("Обновить")
-                    .padding(.all, 10)
-                    .frame(width: 300)
-                    .foregroundStyle(.white)
-                    .background(exchangerViewModel.isUpdating ? .blue.opacity(0.5) : .blue)
-                    .clipShape(.rect(cornerRadius: 15))
-                    .padding(.vertical, 5)
-                    .overlay {
-                        ProgressView()
-                            .opacity(exchangerViewModel.isUpdating ? 1 : 0)
-                    }
-            })
         }
     }
     
@@ -176,7 +159,7 @@ struct DetailView: View {
             VStack(alignment: .leading) {
                 HStack {
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("Адрес")
+                        Text("main_info_address")
                             .font(.system(size: 18))
                             .bold()
                         Text(exchanger?.mainAddress ?? "")
@@ -187,7 +170,7 @@ struct DetailView: View {
                             .font(.system(size: 16))
                     }
                     Spacer()
-                    Text("~\(locationViewModel.calculateDistance(latitude: exchanger?.coordinates.lat ?? 0, longitude: exchanger?.coordinates.lng ?? 0)) км")
+                    Text("~\(locationViewModel.calculateDistance(latitude: exchanger?.coordinates.lat ?? 0, longitude: exchanger?.coordinates.lng ?? 0)) \(NSLocalizedString("kilometers", comment: ""))")
                 }
                 if exchanger?.mainAddress ?? "" != exchanger?.address ?? "" {
                     Divider()
@@ -204,7 +187,7 @@ struct DetailView: View {
             if !openTime {
                 HStack {
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("Время работы")
+                        Text("main_info_working_hours")
                             .font(.system(size: 18))
                             .bold()
                         Text(workingHoursForToday())
@@ -235,7 +218,7 @@ struct DetailView: View {
             }
             
             VStack (alignment: .leading, spacing: 5) {
-                Text("Контакты")
+                Text("about_app_contacts")
                     .font(.system(size: 18))
                     .bold()
                 ForEach(exchanger?.phones ?? [], id:\.self) { phone in
@@ -266,7 +249,7 @@ struct DetailView: View {
                     UIApplication.shared.open(appUrl, options: [:], completionHandler: nil)
                 }
             } label: {
-                Text("Открыть в 2GIS")
+                Text("\(NSLocalizedString("main_info_open_in", comment: "")) 2GIS")
             }
             .padding(.all, 10)
             .frame(width: 300)
@@ -299,13 +282,13 @@ struct DetailView: View {
         
         if let hours = components.hour, hours > 0 {
             if hours == 1 {
-                return "\(hours) час назад"
+                return "\(hours) \(NSLocalizedString("main_hour_ago", comment: ""))"
             }
-            return "\(hours) часа назад"
+            return "\(hours) \(NSLocalizedString("main_hours_ago", comment: ""))"
         } else if let minutes = components.minute {
-            return "\(minutes) минут назад"
+            return "\(minutes) \(NSLocalizedString("main_minute_ago", comment: ""))"
         } else {
-            return "Только что"
+            return "\(NSLocalizedString("main_just_now", comment: ""))"
         }
     }
     
@@ -314,17 +297,17 @@ struct DetailView: View {
         VStack(alignment: .leading) {
             HStack {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Время работы")
+                    Text("main_info_working_hours")
                         .font(.system(size: 18))
                         .bold()
                     if let workMode = exchanger?.workModes {
-                        Text("Пн: \(workMode.mon.first ?? "") - \(workMode.mon[1])")
-                        Text("Вт: \(workMode.tue.first ?? "") - \(workMode.tue[1])")
-                        Text("Ср: \(workMode.wed.first ?? "") - \(workMode.wed[1])")
-                        Text("Чт: \(workMode.thu.first ?? "") - \(workMode.thu[1])")
-                        Text("Пт: \(workMode.fri.first ?? "") - \(workMode.fri[1])")
-                        Text("Сб: \(workMode.sat.first ?? "") - \(workMode.sat[1])")
-                        Text("Вс: \(workMode.sun.first ?? "") - \(workMode.sun[1])")
+                        Text("\(NSLocalizedString("monday", comment: "")): \(workMode.mon.first ?? "") - \(workMode.mon[1])")
+                        Text("\(NSLocalizedString("tuesday", comment: "")): \(workMode.tue.first ?? "") - \(workMode.tue[1])")
+                        Text("\(NSLocalizedString("wednesday", comment: "")): \(workMode.wed.first ?? "") - \(workMode.wed[1])")
+                        Text("\(NSLocalizedString("thursday", comment: "")): \(workMode.thu.first ?? "") - \(workMode.thu[1])")
+                        Text("\(NSLocalizedString("friday", comment: "")): \(workMode.fri.first ?? "") - \(workMode.fri[1])")
+                        Text("\(NSLocalizedString("saturday", comment: "")): \(workMode.sat.first ?? "") - \(workMode.sat[1])")
+                        Text("\(NSLocalizedString("sunday", comment: "")): \(workMode.sun.first ?? "") - \(workMode.sun[1])")
                     }
                 }
                 Spacer()
@@ -343,21 +326,21 @@ struct DetailView: View {
         let currentDayOfWeek = dateFormatter.string(from: Date()).lowercased()
         switch currentDayOfWeek {
         case "monday":
-            return "Пн: \(exchanger?.workModes.mon.first ?? "") - \(exchanger?.workModes.mon[1] ?? "")"
+            return "\(NSLocalizedString("monday", comment: "")): \(exchanger?.workModes.mon.first ?? "") - \(exchanger?.workModes.mon[1] ?? "")"
         case "tuesday":
-            return "Вт: \(exchanger?.workModes.tue.first ?? "") - \(exchanger?.workModes.tue[1] ?? "")"
+            return "\(NSLocalizedString("tuesday", comment: "")): \(exchanger?.workModes.tue.first ?? "") - \(exchanger?.workModes.tue[1] ?? "")"
         case "wednesday":
-            return "Ср: \(exchanger?.workModes.wed.first ?? "") - \(exchanger?.workModes.wed[1] ?? "")"
+            return "\(NSLocalizedString("wednesday", comment: "")): \(exchanger?.workModes.wed.first ?? "") - \(exchanger?.workModes.wed[1] ?? "")"
         case "thursday":
-            return "Чт: \(exchanger?.workModes.thu.first ?? "") - \(exchanger?.workModes.thu[1] ?? "")"
+            return "\(NSLocalizedString("thursday", comment: "")): \(exchanger?.workModes.thu.first ?? "") - \(exchanger?.workModes.thu[1] ?? "")"
         case "friday":
-            return "Пт: \(exchanger?.workModes.fri.first ?? "") - \(exchanger?.workModes.fri[1] ?? "")"
+            return "\(NSLocalizedString("friday", comment: "")): \(exchanger?.workModes.fri.first ?? "") - \(exchanger?.workModes.fri[1] ?? "")"
         case "saturday":
-            return "Сб: \(exchanger?.workModes.sat.first ?? "") - \(exchanger?.workModes.sat[1] ?? "")"
+            return "\(NSLocalizedString("saturday", comment: "")): \(exchanger?.workModes.sat.first ?? "") - \(exchanger?.workModes.sat[1] ?? "")"
         case "Sunday":
-            return "Вс: \(exchanger?.workModes.sun.first ?? "") - \(exchanger?.workModes.sun[1] ?? "")"
+            return "\(NSLocalizedString("sunday", comment: "")): \(exchanger?.workModes.sun.first ?? "") - \(exchanger?.workModes.sun[1] ?? "")"
         default:
-            return "Ошибка"
+            return NSLocalizedString("main_error", comment: "")
         }
     }
     
@@ -367,9 +350,9 @@ struct DetailView: View {
         var title: String {
             switch self {
             case .CURRENCY:
-                return "Валюта"
+                return NSLocalizedString("main_sort_currency", comment: "")
             case .INFO:
-                return "Инфо"
+                return NSLocalizedString("main_info", comment: "")
             }
         }
     }

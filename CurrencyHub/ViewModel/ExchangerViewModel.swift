@@ -12,7 +12,8 @@ import Combine
 @MainActor
 class ExchangerViewModel: ObservableObject {
     @Published var exchangers = [Exchanger]()
-    @Published var isUpdating: Bool = false
+    @Published var error: Bool = false
+    @Published var errorMessage: String = ""
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -30,44 +31,14 @@ class ExchangerViewModel: ObservableObject {
                 case .finished:
                     break
                 case .failure(let error):
-                    print("Error: \(error)")
+                    DispatchQueue.main.async {
+                        self.error.toggle()
+                        self.errorMessage = error.localizedDescription
+                    }
                 }
             }, receiveValue: { [weak self] html in
                 guard let exchangers = self?.extractJSON(from: html, city: city) else { return }
                 self?.exchangers = exchangers
-            })
-            .store(in: &cancellables)
-    }
-    
-    func updateKursKz(id: String, city: String) async {
-        if isUpdating { return }
-        isUpdating = true
-        guard let url = URL(string: "https://kurs.kz/site/index?city=\(city)") else { return }
-        
-        URLSession.shared.dataTaskPublisher(for: url)
-            .map(\.data)
-            .map { data in
-                String(data: data, encoding: .utf8) ?? ""
-            }
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
-                switch completion {
-                case .finished:
-                    break
-                case .failure(let error):
-                    print("Error: \(error)")
-                }
-            }, receiveValue: { [weak self] html in
-                guard let exchangers = self?.extractJSON(from: html, city: city) else { return }
-                if let exchanger = exchangers.first(where: { $0.id == id }) {
-                    if let index = self?.exchangers.firstIndex(where: { $0.id == id }) {
-                        DispatchQueue.main.async {
-                            self?.exchangers[index].currency = exchanger.currency
-                            self?.exchangers[index].actualTime = exchanger.actualTime
-                            self?.isUpdating = false
-                        }
-                    }
-                }
             })
             .store(in: &cancellables)
     }
@@ -103,7 +74,10 @@ class ExchangerViewModel: ObservableObject {
                             allExchangers.append(newExchanger)
                         }
                     } catch {
-                        print("Error decoding JSON: \(error)")
+                        DispatchQueue.main.async {
+                            self.error.toggle()
+                            self.errorMessage = error.localizedDescription
+                        }
                     }
                 }
             }
@@ -111,7 +85,10 @@ class ExchangerViewModel: ObservableObject {
             return allExchangers
 
         } catch {
-            print("Error extracting JSON: \(error)")
+            DispatchQueue.main.async {
+                self.error.toggle()
+                self.errorMessage = error.localizedDescription
+            }
         }
         return []
     }

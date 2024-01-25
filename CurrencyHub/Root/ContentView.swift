@@ -18,7 +18,7 @@ struct ContentView: View {
                 .environmentObject(exchangerViewModel)
                 .tabItem {
                     Label(
-                        title: { Text("Карта") },
+                        title: { Text("main_map") },
                         icon: {
                             Image(systemName: "map.fill")
                         }
@@ -32,7 +32,7 @@ struct ContentView: View {
             About()
                 .tabItem {
                     Label(
-                        title: { Text("О приложении") },
+                        title: { Text("about_of_application") },
                         icon: { 
                             Image(systemName: "info.square.fill")
                         }

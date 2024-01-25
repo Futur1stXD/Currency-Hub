@@ -16,7 +16,7 @@ struct MapStylePicker: View {
     var body: some View {
         VStack {
             HStack {
-                Text("Выбор карты")
+                Text("main_map_style_choose")
                     .font(.title2)
                     .bold()
                 Spacer()
@@ -39,7 +39,7 @@ struct MapStylePicker: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 150)
                     .overlay(alignment: .bottom) {
-                        Text("Cтандартная")
+                        Text("main_map_standard")
                             .frame(width: 150)
                             .padding(.vertical, 5)
                             .background(.black)
@@ -55,7 +55,7 @@ struct MapStylePicker: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 150)
                     .overlay(alignment: .bottom) {
-                        Text("Гибридная")
+                        Text("main_map_hybrid")
                             .frame(width: 150)
                             .padding(.vertical, 5)
                             .background(.black)

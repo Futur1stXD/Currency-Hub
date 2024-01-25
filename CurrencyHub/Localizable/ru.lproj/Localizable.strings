@@ -1,0 +1,68 @@
+"about_of_application" = "О приложении";
+
+"goal_of_application" = "Цель приложения";
+"goal_of_application_description" = "Данный проект создавался в образовательных целях.";
+
+"about_app_improvements" = "Дальнейшие улучшения";
+"about_app_improve_description" = "Если охват будет большой, мы планируем регулярно обновлять и расширять его функциональность, добавляя новые регионы и улучшая качество данных обменников.";
+
+"about_app_contacts" = "Контакты";
+"about_app_charity" = "Поддержать проект";
+
+"about_app_sub" = "Оформить подписку";
+"about_app_sub_description" = "Все средства, полученные от подписок и поддержки проекта, будут направлены на его дальнейшее развитие и улучшение.";
+
+"main_map" = "Карта";
+"main_sort_update" = "По обновлению валюты";
+"main_sort_currency" = "Валюта";
+"main_sort_all" = "Все обменники";
+"main_sort" = "Сортировка";
+"main_search" = "Поиск";
+"main_buy" = "Покупка";
+"main_sell" = "Продажа";
+"main_info" = "Инфо";
+
+"main_error" = "Ошибка";
+"main_update" = "Обновить";
+
+"main_available_cities" = "Доступные города";
+"main_open" = "открыто";
+"main_close" = "закрыто";
+"main_data_tacked" = "Данные взяты с";
+"main_updated" = "Обновлено";
+
+"city_astana" = "Астана";
+"city_almaty" = "Алматы";
+"city_aksu" = "Аксу";
+"city_aktau" = "Актау";
+"city_aktobe" = "Актобе";
+"city_kaskelen" = "Каскелен";
+"city_kostanai" = "Костанай";
+"city_pavlodar" = "Павлодар";
+"city_ridder" = "Риддер";
+"city_semei" = "Семей";
+"city_taldykorgan" = "Талдыкорган";
+"city_uralsk" = "Уральск";
+"city_shymkent" = "Шымкент";
+
+"main_info_address" = "Адрес";
+"main_info_working_hours" = "Время работы";
+"main_info_open_in" = "Открыть в";
+
+"main_hour_ago" = "час назад";
+"main_hours_ago" = "часа назад";
+"main_minute_ago" = "минут назад";
+"main_just_now" = "Только что";
+
+"monday" = "Пн";
+"tuesday" = "Вт";
+"wednesday" = "Ср";
+"thursday" = "Чт";
+"friday" = "Пт";
+"saturday" = "Сб";
+"sunday" = "Вс";
+
+"kilometers" = "км";
+"main_map_style_choose" = "Выбор стиля карты";
+"main_map_standard" = "Стандартная";
+"main_map_hybrid" = "Гибридная";

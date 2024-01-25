@@ -13,11 +13,11 @@ enum SortSettings: String, CaseIterable {
     var title: String {
         switch self {
         case .LAST_UPDATE:
-            return "По обновлению валюты"
+            return NSLocalizedString("main_sort_update", comment: "")
         case .CURRENCY:
-            return "Валюта"
+            return NSLocalizedString("main_sort_currency", comment: "")
         case .ALL:
-            return "Все обменники"
+            return NSLocalizedString("main_sort_all", comment: "")
         }
     }
 }
@@ -28,9 +28,9 @@ enum SortSetBuyOrSell: String, CaseIterable {
     var title: String {
         switch self {
         case .BUY:
-            return "Покупка"
+            return NSLocalizedString("main_buy", comment: "")
         case .SELL:
-            return "Продажа"
+            return NSLocalizedString("main_sell", comment: "")
         }
     }
 }
