@@ -199,7 +199,7 @@ struct MapView: View {
             DetailView(exchanger: $selectedExchanger, height: $heightDetailView)
                 .presentationDetents(heightDetailView > 700 ? [.height(350), .large] : [.height(heightDetailView)])
                 .presentationCornerRadius(20)
-                .presentationBackgroundInteraction(.enabled(upThrough: .height(heightDetailView > 700 ? 350 : heightDetailView)))
+                .presentationBackgroundInteraction(.enabled(upThrough: heightDetailView > 700 ? .height(350) : .height(heightDetailView)))
         })
         .onChange(of: locationViewModel.city) {
             if let cityString = locationViewModel.city {

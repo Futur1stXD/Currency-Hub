@@ -54,7 +54,7 @@ struct About: View {
                     )
                     .padding(.horizontal)
                     HStack {
-                        Text("E-mail: futur1stbtw@gmail.com")
+                        Text("E-mail: CreateNewX@gmail.com")
                             .font(.system(size: 16))
                         Spacer()
                     }
